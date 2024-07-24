@@ -34,6 +34,9 @@ public class JournalService {
 		 }
 	}
 //get all
+	  public void saveEntry(JournalEntity  journalEntry) {
+	        journalRepository.save(journalEntry);
+	    }
 
 	public List<JournalEntity> getAll(String userName) {
 		Optional<User> user=userRepo.findByUserName(userName);

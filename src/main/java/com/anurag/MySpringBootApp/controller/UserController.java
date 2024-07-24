@@ -7,6 +7,8 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,45 +34,25 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepo;
 
-	@GetMapping
-	public ResponseEntity<List<User >> getJournal() {
+	
+	 @DeleteMapping
+	    public ResponseEntity<?> deleteUserById() {
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	        userRepo.deleteByUserName(authentication.getName());
+	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	    }
 
-		if (userService.getAll() != null && !userService.getAll().isEmpty()) {
-			return new ResponseEntity<>(userService.getAll(), HttpStatus.OK);
-		}
+	@PutMapping
+	public ResponseEntity<?> updateUser(@RequestBody User user) {
 
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	}
-
-
-
-	@GetMapping("/{id}")
-	public ResponseEntity<User> getEntryById(@PathVariable ObjectId id) {
-
-		Optional<User> byId = userService.getById(id);
-		if (byId.isPresent())
-			return new ResponseEntity<>(byId.get(), HttpStatus.OK);
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	}
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> getDeleteId(@PathVariable ObjectId id) {
-
-		boolean deleteById = userService.deleteById(id);
-		 if(deleteById)
-			 return new ResponseEntity<>( HttpStatus.NO_CONTENT);
-		 return new ResponseEntity<>( HttpStatus.NOT_FOUND);
-		
-	}
-
-	@PutMapping()
-	public ResponseEntity<User> updateUser( @RequestBody User entry) {
-		Optional<User> op=userService.updateEntry(entry);
-		if(!op.isEmpty())
-		{
-			return new ResponseEntity<>(op.get(),HttpStatus.OK);
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String userName = authentication.getName();
+		Optional<User> userInDbOp = userService.findByUserName(userName);
+			User userInDb=userInDbOp.get();
+		userInDb.setUserName(user.getUserName());
+		userInDb.setPassword(user.getPassword());
+		userService.saveNewUser(userInDb);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
 	}
 

@@ -1,0 +1,2 @@
+# MyJournalApp
+# MySpringBootApp

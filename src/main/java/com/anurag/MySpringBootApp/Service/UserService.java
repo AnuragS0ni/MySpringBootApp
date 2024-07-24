@@ -1,6 +1,7 @@
 package com.anurag.MySpringBootApp.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public class UserService {
 	private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 //save
-	public User save(User entry) {
+	public User saveNewUser(User entry) {
 		entry.setPassword(passwordEncoder.encode(entry.getPassword()));
 		entry.getRoles().add("Users");
 	return userRepository.save(entry);
@@ -46,16 +47,27 @@ public class UserService {
 	}
 
 	// update
-	public Optional<User> updateEntry(User newEntry) {
-		Optional<User> userInDB = userRepository.findByUserName(newEntry.getUserName());
-		
-		if (userInDB.isPresent()) {
-			userInDB.get().setPassword(
-					newEntry.getPassword() != null && newEntry.getPassword() != "" ? newEntry.getPassword() :
-						userInDB.get().getPassword());
-			userRepository.save(userInDB.get());
-		}
-		
-		return userInDB;
+//	public Optional<User> updateEntry(User newEntry) {
+//		Optional<User> userInDB = userRepository.findByUserName(newEntry.getUserName());
+//		
+//		if (userInDB.isPresent()) {
+//			userInDB.get().setPassword(
+//					newEntry.getPassword() != null && newEntry.getPassword() != "" ? newEntry.getPassword() :
+//						userInDB.get().getPassword());
+//			userRepository.save(userInDB.get());
+//		}
+//		
+//		return userInDB;
+//	}
+
+	public void saveAdmin(User user) {
+		// TODO Auto-generated method stub
+		 user.setPassword(passwordEncoder.encode(user.getPassword()));
+	        user.setRoles(Arrays.asList("USER", "ADMIN"));
+	        userRepository.save(user);
 	}
+	
+	  public Optional<User> findByUserName(String userName) {
+	        return userRepository.findByUserName(userName);
+	    }
 }
